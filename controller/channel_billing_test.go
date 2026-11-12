@@ -247,3 +247,37 @@ func TestFetchAdvancedCustomAssetBalance(t *testing.T) {
 		})
 	}
 }
+
+func TestConfiguredChannelBalance(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		body       string
+		path       string
+		multiplier float64
+		want       float64
+		wantErr    bool
+	}{
+		{"nested numeric string", `{"ok":true,"data":{"credits":"2500000"}}`, "data.credits", 0.000002, 5, false},
+		{"array path", `{"ok":true,"items":[{"amount":7}]}`, "items.0.amount", 1, 7, false},
+		{"zero", `{"ok":true,"amount":0}`, "amount", 1, 0, false},
+		{"failed success condition", `{"ok":false,"amount":5}`, "amount", 1, 0, true},
+		{"missing success condition", `{"amount":5}`, "amount", 1, 0, true},
+		{"missing balance", `{"ok":true}`, "amount", 1, 0, true},
+		{"null balance", `{"ok":true,"amount":null}`, "amount", 1, 0, true},
+		{"invalid string", `{"ok":true,"amount":"oops"}`, "amount", 1, 0, true},
+		{"boolean balance", `{"ok":true,"amount":true}`, "amount", 1, 0, true},
+		{"negative balance", `{"ok":true,"amount":-1}`, "amount", 1, 0, true},
+		{"overflow", `{"ok":true,"amount":1e308}`, "amount", 100, 0, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			config := &dto.BalanceResponseConfig{BalancePath: tc.path, Multiplier: &tc.multiplier, SuccessPath: "ok", SuccessValue: json.RawMessage(`true`)}
+			balance, err := parseConfiguredChannelBalance([]byte(tc.body), config)
+			if tc.wantErr {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.InDelta(t, tc.want, balance, 1e-9)
+		})
+	}
+}

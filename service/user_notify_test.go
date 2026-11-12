@@ -173,6 +173,13 @@ func TestChannelNoticesFollowEachAdministratorsSwitch(t *testing.T) {
 	NotifyChannelWatchers(dto.NotifyTypeChannelTest, func(lang string) (string, string) {
 		return i18n.Translate(lang, i18n.MsgChannelTestCompletedSubject), i18n.Translate(lang, i18n.MsgChannelTestCompletedContent)
 	})
+	channel.SetOtherSettings(dto.ChannelOtherSettings{BalanceNotifyEnabled: true, BalanceNotifyThreshold: 5})
+	NotifyLowChannelBalance(channel, 4)
+	NotifyLowChannelBalance(channel, 3)
+	NotifyLowChannelBalance(channel, 5)
+	NotifyLowChannelBalance(channel, 2)
+	channel.SetOtherSettings(dto.ChannelOtherSettings{BalanceNotifyEnabled: false, BalanceNotifyThreshold: 5})
+	NotifyLowChannelBalance(channel, 1)
 
 	disabledType := formatNotifyType(channel.Id, common.ChannelStatusAutoDisabled)
 	enabledType := formatNotifyType(channel.Id, common.ChannelStatusEnabled)
@@ -181,11 +188,15 @@ func TestChannelNoticesFollowEachAdministratorsSwitch(t *testing.T) {
 			fmt.Sprintf(`%s Channel "notice-review" (#%d) has been disabled`, disabledType, channel.Id),
 			fmt.Sprintf(`%s Channel "notice-review" (#%d) has been enabled`, enabledType, channel.Id),
 			"channel_test Channel test completed",
+			fmt.Sprintf("channel_balance_low_%d Channel balance low", channel.Id),
+			fmt.Sprintf("channel_balance_low_%d Channel balance low", channel.Id),
 		},
 		"admin-turned-on": {
 			fmt.Sprintf("%s 通道「notice-review」（#%d）已被禁用", disabledType, channel.Id),
 			fmt.Sprintf("%s 通道「notice-review」（#%d）已被启用", enabledType, channel.Id),
 			"channel_test 通道测试完成",
+			fmt.Sprintf("channel_balance_low_%d 渠道余额不足", channel.Id),
+			fmt.Sprintf("channel_balance_low_%d 渠道余额不足", channel.Id),
 		},
 	}, received)
 }
