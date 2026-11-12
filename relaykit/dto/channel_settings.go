@@ -1,7 +1,9 @@
 package dto
 
 import (
+	"encoding/json"
 	"fmt"
+	"math"
 	"net/url"
 	"regexp"
 	"slices"
@@ -110,6 +112,8 @@ const (
 )
 
 type ChannelOtherSettings struct {
+	BalanceNotifyEnabled                  bool                  `json:"balance_notify_enabled,omitempty"`
+	BalanceNotifyThreshold                float64               `json:"balance_notify_threshold,omitempty"`
 	AzureResponsesVersion                 string                `json:"azure_responses_version,omitempty"`
 	VertexKeyType                         VertexKeyType         `json:"vertex_key_type,omitempty"`    // "json" or "api_key"
 	VertexProjectID                       string                `json:"vertex_project_id,omitempty"`  // 仅当 vertex_key_type=api_key 时使用；JSON 模式下从 service account 解析
@@ -190,12 +194,43 @@ type AdvancedCustomConfig struct {
 }
 
 type AdvancedCustomRoute struct {
+	BalanceResponse        *BalanceResponseConfig   `json:"balance_response,omitempty"`
 	IncomingPath           string                   `json:"incoming_path,omitempty"`
 	UpstreamPath           string                   `json:"upstream_path,omitempty"`
 	Converter              string                   `json:"converter,omitempty"`
 	Models                 []string                 `json:"models,omitempty"`
 	Auth                   *AdvancedCustomRouteAuth `json:"auth,omitempty"`
 	PassThroughBodyEnabled bool                     `json:"pass_through_body_enabled,omitempty"`
+}
+
+type BalanceResponseConfig struct {
+	BalancePath  string          `json:"balance_path"`
+	Multiplier   *float64        `json:"multiplier,omitempty"`
+	SuccessPath  string          `json:"success_path,omitempty"`
+	SuccessValue json.RawMessage `json:"success_value,omitempty"`
+}
+
+func (c *BalanceResponseConfig) Validate() error {
+	if strings.TrimSpace(c.BalancePath) == "" {
+		return fmt.Errorf("Balance field path is required")
+	}
+	if c.Multiplier != nil && (*c.Multiplier <= 0 || math.IsNaN(*c.Multiplier) || math.IsInf(*c.Multiplier, 0)) {
+		return fmt.Errorf("Balance multiplier must be positive and finite")
+	}
+	if c.SuccessPath != "" && !json.Valid(c.SuccessValue) {
+		return fmt.Errorf("Expected success value must be valid JSON")
+	}
+	if c.SuccessPath == "" && len(c.SuccessValue) != 0 {
+		return fmt.Errorf("Success field path is required")
+	}
+	return nil
+}
+
+func (s *ChannelOtherSettings) ValidateBalanceNotification() error {
+	if s.BalanceNotifyEnabled && (s.BalanceNotifyThreshold <= 0 || math.IsNaN(s.BalanceNotifyThreshold) || math.IsInf(s.BalanceNotifyThreshold, 0)) {
+		return fmt.Errorf("Low balance threshold must be positive and finite")
+	}
+	return nil
 }
 
 // SupportsPassThroughBody reports whether the route converter leaves the request body untouched.
@@ -487,6 +522,14 @@ func (c *AdvancedCustomConfig) Validate() error {
 		route.Converter = strings.TrimSpace(route.Converter)
 		if route.Converter == "" {
 			route.Converter = advancedCustomConverterNone
+		}
+		if route.BalanceResponse != nil {
+			if route.IncomingPath != AdvancedCustomBalancePath {
+				return fmt.Errorf("Balance response settings require a balance route")
+			}
+			if err := route.BalanceResponse.Validate(); err != nil {
+				return err
+			}
 		}
 
 		if route.IncomingPath == "" {

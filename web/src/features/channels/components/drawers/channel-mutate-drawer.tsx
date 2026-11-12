@@ -2326,6 +2326,38 @@ export function ChannelMutateDrawer({
           </FormItem>
         )}
       />
+      <FormField
+        control={form.control}
+        name='balance_notify_enabled'
+        render={({ field }) => (
+          <FormItem className='flex items-center justify-between'>
+            <div className='space-y-0.5'>
+              <FormLabel>{t('Low channel balance notifications')}</FormLabel>
+              <FormDescription>
+                {t('Notify channel watchers when a successful balance query is below the threshold. Set CHANNEL_UPDATE_FREQUENCY in minutes for scheduled checks.')}
+              </FormDescription>
+            </div>
+            <FormControl>
+              <Switch checked={field.value === true} onCheckedChange={field.onChange} />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+      {form.watch('balance_notify_enabled') && (
+        <FormField
+          control={form.control}
+          name='balance_notify_threshold'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('Low balance threshold (USD)')}</FormLabel>
+              <FormControl>
+                <Input type='number' min='0' step='any' {...field} onChange={(event) => field.onChange(Number(event.target.value))} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </div>
   )
 

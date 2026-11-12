@@ -76,6 +76,8 @@ notify.quota_low_gotify: "{{.Prompt}}. Your remaining quota is {{.Quota}}. Pleas
 notify.quota_low_email: "{{.Prompt}}. Your remaining quota is {{.Quota}}. Top up soon to keep using the service.<br/>Top-up link: <a href='{{.Link}}'>{{.Link}}</a>"
 
 # Channel notices sent to administrators who receive them and to model update watchers
+channel.balance_low_subject: "Channel balance low"
+channel.balance_low_content: "Channel \"{{.Name}}\" (#{{.Id}}) balance is {{.Balance}} USD, below the {{.Threshold}} USD threshold."
 channel.notify_disabled_subject: "Channel \"{{.Name}}\" (#{{.Id}}) has been disabled"
 channel.notify_disabled_content: "Channel \"{{.Name}}\" (#{{.Id}}) has been disabled. Reason: {{.Reason}}"
 channel.notify_enabled_subject: "Channel \"{{.Name}}\" (#{{.Id}}) has been enabled"

@@ -1116,6 +1116,76 @@ function ManagementRouteEditor({
       <p className='text-muted-foreground text-xs'>
         {t(upstreamPathDescriptionKey)}
       </p>
+      {path === ADVANCED_CUSTOM_BALANCE_PATH && (
+        <div className='space-y-4 border-t pt-4'>
+          <div className='flex items-center justify-between gap-4'>
+            <span className='text-sm font-medium'>{t('Custom balance response')}</span>
+            <Switch
+              aria-label={t('Custom balance response')}
+              checked={route.balance_response !== undefined}
+              onCheckedChange={(checked) => onChange({
+                ...route,
+                balance_response: checked ? { balance_path: '', multiplier: 1 } : undefined,
+              })}
+            />
+          </div>
+          {route.balance_response && (
+            <div className='grid gap-4 md:grid-cols-2'>
+              <FieldBlock label={t('Balance field path')}>
+                <Input
+                  aria-label={t('Balance field path')}
+                  value={route.balance_response.balance_path}
+                  placeholder='data.assetReadModel.totalAvailableUsd'
+                  onChange={(event) => onChange({ ...route, balance_response: { ...route.balance_response!, balance_path: event.target.value } })}
+                />
+              </FieldBlock>
+              <FieldBlock label={t('Balance multiplier (to USD)')}>
+                <Input
+                  aria-label={t('Balance multiplier (to USD)')}
+                  type='number' step='any' min='0'
+                  value={route.balance_response.multiplier ?? 1}
+                  onChange={(event) => onChange({ ...route, balance_response: { ...route.balance_response!, multiplier: Number(event.target.value) } })}
+                />
+              </FieldBlock>
+              <FieldBlock label={t('Success field path (optional)')}>
+                <Input
+                  aria-label={t('Success field path (optional)')}
+                  value={route.balance_response.success_path ?? ''}
+                  placeholder='ok'
+                  onChange={(event) => onChange({ ...route, balance_response: {
+                    ...route.balance_response!,
+                    success_path: event.target.value,
+                    success_value: event.target.value === '' ? undefined : true,
+                  } })}
+                />
+              </FieldBlock>
+              {route.balance_response.success_path && (
+                <FieldBlock label={t('Expected success value')}>
+                  <Input
+                    aria-label={t('Expected success value')}
+                    value={typeof route.balance_response.success_value === 'string'
+                      ? route.balance_response.success_value
+                      : JSON.stringify(route.balance_response.success_value)}
+                    placeholder='true'
+                    onChange={(event) => {
+                      const text = event.target.value
+                      let value: unknown = text
+                      if (text === 'true') value = true
+                      else if (text === 'false') value = false
+                      else if (text === 'null') value = null
+                      else if (text.trim() !== '' && Number.isFinite(Number(text))) value = Number(text)
+                      onChange({ ...route, balance_response: { ...route.balance_response!, success_value: value } })
+                    }}
+                  />
+                </FieldBlock>
+              )}
+              <p className='text-muted-foreground text-xs md:col-span-2'>
+                {t('Use dot paths and numeric array indexes. Balance is multiplied into USD. Missing fields or failed conditions do not update the balance.')}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

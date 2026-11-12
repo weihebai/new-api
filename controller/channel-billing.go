@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -23,6 +24,7 @@ import (
 	"github.com/QuantumNous/new-api/setting/operation_setting"
 
 	"github.com/shopspring/decimal"
+	"github.com/tidwall/gjson"
 
 	"github.com/gin-gonic/gin"
 )
@@ -593,6 +595,15 @@ func fetchAdvancedCustomBalance(channel *model.Channel) (channelBalanceResult, e
 	if err := common.Unmarshal(body, &validated); err != nil {
 		return channelBalanceResult{}, fmt.Errorf("invalid balance JSON response: %w", err)
 	}
+	route, _ := channel.GetOtherSettings().AdvancedCustom.BalanceRoute()
+	if route.BalanceResponse != nil {
+		balance, err := parseConfiguredChannelBalance(body, route.BalanceResponse)
+		if err != nil {
+			return channelBalanceResult{}, err
+		}
+		channel.UpdateBalance(balance)
+		return channelBalanceResult{Balance: balance}, nil
+	}
 	if common.GetJsonType(validated) == "object" {
 		var creditSummary struct {
 			Object         string          `json:"object"`
@@ -637,7 +648,41 @@ func fetchAdvancedCustomBalance(channel *model.Channel) (channelBalanceResult, e
 	return channelBalanceResult{RawResponse: string(formatted)}, nil
 }
 
-func updateChannelBalance(channel *model.Channel) (channelBalanceResult, error) {
+func parseConfiguredChannelBalance(body []byte, config *dto.BalanceResponseConfig) (float64, error) {
+	if err := config.Validate(); err != nil {
+		return 0, err
+	}
+	if config.SuccessPath != "" {
+		actual := gjson.GetBytes(body, config.SuccessPath)
+		var actualValue, expectedValue any
+		if !actual.Exists() || common.Unmarshal([]byte(actual.Raw), &actualValue) != nil ||
+			common.Unmarshal(config.SuccessValue, &expectedValue) != nil || !reflect.DeepEqual(actualValue, expectedValue) {
+			return 0, common.NewMessage("Balance response success condition did not match")
+		}
+	}
+	value := gjson.GetBytes(body, config.BalancePath)
+	if !value.Exists() || (value.Type != gjson.Number && value.Type != gjson.String) {
+		return 0, common.NewMessage("Balance field is missing or is not numeric")
+	}
+	balance, err := strconv.ParseFloat(value.String(), 64)
+	if err != nil {
+		return 0, common.NewMessage("Balance field is missing or is not numeric")
+	}
+	if config.Multiplier != nil {
+		balance *= *config.Multiplier
+	}
+	if balance < 0 || math.IsNaN(balance) || math.IsInf(balance, 0) {
+		return 0, common.NewMessage("Balance must be non-negative and finite")
+	}
+	return balance, nil
+}
+
+func updateChannelBalance(channel *model.Channel) (result channelBalanceResult, err error) {
+	defer func() {
+		if err == nil && result.RawResponse == "" {
+			service.NotifyLowChannelBalance(channel, result.Balance)
+		}
+	}()
 	if channel.Type == constant.ChannelTypeAdvancedCustom {
 		return fetchAdvancedCustomBalance(channel)
 	}

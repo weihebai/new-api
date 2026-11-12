@@ -3,15 +3,48 @@ package service
 import (
 	"bytes"
 	"fmt"
+	"html"
+	"math"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/i18n"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/relaykit/dto"
 	"github.com/QuantumNous/new-api/setting/system_setting"
 )
+
+var channelBalanceNotices = struct {
+	sync.Mutex
+	low map[int]float64
+}{low: make(map[int]float64)}
+
+func NotifyLowChannelBalance(channel *model.Channel, balance float64) {
+	settings := channel.GetOtherSettings()
+	channelBalanceNotices.Lock()
+	if !settings.BalanceNotifyEnabled || balance >= settings.BalanceNotifyThreshold {
+		delete(channelBalanceNotices.low, channel.Id)
+		channelBalanceNotices.Unlock()
+		return
+	}
+	if settings.BalanceNotifyThreshold <= 0 || balance < 0 || math.IsNaN(balance) || math.IsInf(balance, 0) {
+		channelBalanceNotices.Unlock()
+		return
+	}
+	if threshold, sent := channelBalanceNotices.low[channel.Id]; sent && threshold == settings.BalanceNotifyThreshold {
+		channelBalanceNotices.Unlock()
+		return
+	}
+	channelBalanceNotices.low[channel.Id] = settings.BalanceNotifyThreshold
+	channelBalanceNotices.Unlock()
+	NotifyChannelWatchers(fmt.Sprintf("channel_balance_low_%d", channel.Id), func(lang string) (string, string) {
+		params := map[string]any{"Name": html.EscapeString(channel.Name), "Id": channel.Id, "Balance": balance, "Threshold": settings.BalanceNotifyThreshold}
+		return i18n.Translate(lang, "channel.balance_low_subject"), i18n.Translate(lang, "channel.balance_low_content", params)
+	})
+}
 
 // NotifyChannelWatchers sends a channel notice (a channel disabled or enabled
 // automatically, or a test of all channels finished) to every administrator

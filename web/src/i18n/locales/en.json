@@ -7410,5 +7410,23 @@
     "Zoom": "Zoom",
     "By clicking sign in, you agree to our": "By clicking sign in, you agree to our",
     "By creating an account, you agree to our": "By creating an account, you agree to our"
-  }
+  },
+  "Custom balance response": "Custom balance response",
+  "Balance field path": "Balance field path",
+  "Balance multiplier (to USD)": "Balance multiplier (to USD)",
+  "Success field path (optional)": "Success field path (optional)",
+  "Expected success value": "Expected success value",
+  "Use dot paths and numeric array indexes. Balance is multiplied into USD. Missing fields or failed conditions do not update the balance.": "Use dot paths and numeric array indexes. Balance is multiplied into USD. Missing fields or failed conditions do not update the balance.",
+  "Low channel balance notifications": "Low channel balance notifications",
+  "Low balance threshold (USD)": "Low balance threshold (USD)",
+  "Notify channel watchers when a successful balance query is below the threshold. Set CHANNEL_UPDATE_FREQUENCY in minutes for scheduled checks.": "Notify channel watchers when a successful balance query is below the threshold. Set CHANNEL_UPDATE_FREQUENCY in minutes for scheduled checks.",
+  "Balance field path is required": "Balance field path is required",
+  "Balance multiplier must be positive and finite": "Balance multiplier must be positive and finite",
+  "Expected success value must be valid JSON": "Expected success value must be valid JSON",
+  "Success field path is required": "Success field path is required",
+  "Balance response settings require a balance route": "Balance response settings require a balance route",
+  "Low balance threshold must be positive and finite": "Low balance threshold must be positive and finite",
+  "Balance response success condition did not match": "Balance response success condition did not match",
+  "Balance field is missing or is not numeric": "Balance field is missing or is not numeric",
+  "Balance must be non-negative and finite": "Balance must be non-negative and finite"
 }

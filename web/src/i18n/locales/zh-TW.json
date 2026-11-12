@@ -7410,5 +7410,23 @@
     "Zoom": "縮放",
     "By clicking sign in, you agree to our": "點擊登入即表示您同意我們的",
     "By creating an account, you agree to our": "建立帳戶即表示您同意我們的"
-  }
+  },
+  "Custom balance response": "自定义余额解析",
+  "Balance field path": "余额字段路径",
+  "Balance multiplier (to USD)": "余额换算系数（转为 USD）",
+  "Success field path (optional)": "成功状态字段路径（可选）",
+  "Expected success value": "成功状态预期值",
+  "Use dot paths and numeric array indexes. Balance is multiplied into USD. Missing fields or failed conditions do not update the balance.": "使用点分隔路径和数字数组下标。余额乘以换算系数后按 USD 保存；字段缺失或成功条件不满足时不更新余额。",
+  "Low channel balance notifications": "渠道低余额通知",
+  "Low balance threshold (USD)": "低余额提醒阈值（USD）",
+  "Notify channel watchers when a successful balance query is below the threshold. Set CHANNEL_UPDATE_FREQUENCY in minutes for scheduled checks.": "余额查询成功且低于阈值时通知接收渠道消息的管理员。定时检查需设置 CHANNEL_UPDATE_FREQUENCY，单位为分钟。",
+  "Balance field path is required": "请填写余额字段路径",
+  "Balance multiplier must be positive and finite": "余额换算系数必须是有效正数",
+  "Expected success value must be valid JSON": "成功状态预期值必须是有效 JSON",
+  "Success field path is required": "请填写成功状态字段路径",
+  "Balance response settings require a balance route": "余额解析设置只能用于余额查询路由",
+  "Low balance threshold must be positive and finite": "低余额提醒阈值必须是有效正数",
+  "Balance response success condition did not match": "余额响应不满足配置的成功条件",
+  "Balance field is missing or is not numeric": "余额字段缺失或不是有效数字",
+  "Balance must be non-negative and finite": "余额必须是有效非负数"
 }

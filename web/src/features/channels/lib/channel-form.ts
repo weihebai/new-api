@@ -224,6 +224,8 @@ export const channelFormSchema = z
     weight: z.number().optional(),
     test_model: z.string().optional(),
     auto_ban: z.number().optional(),
+    balance_notify_enabled: z.boolean().optional(),
+    balance_notify_threshold: z.number().finite().positive().optional(),
     status: z.number(),
     status_code_mapping: z
       .string()
@@ -445,6 +447,8 @@ export const CHANNEL_FORM_DEFAULT_VALUES: ChannelFormValues = {
   weight: 0,
   test_model: '',
   auto_ban: 1,
+  balance_notify_enabled: false,
+  balance_notify_threshold: 1,
   status: CHANNEL_STATUS.ENABLED,
   status_code_mapping: '',
   tag: '',
@@ -568,10 +572,16 @@ export function transformChannelToFormDefaults(
   let upstreamModelUpdateAutoSyncEnabled = false
   let upstreamModelUpdateIgnoredModels = ''
   let advancedCustom = ''
+  let balanceNotifyEnabled = false
+  let balanceNotifyThreshold = 1
 
   if (channel.settings) {
     try {
       const parsed = JSON.parse(channel.settings)
+      balanceNotifyEnabled = parsed.balance_notify_enabled === true
+      if (typeof parsed.balance_notify_threshold === 'number' && parsed.balance_notify_threshold > 0) {
+        balanceNotifyThreshold = parsed.balance_notify_threshold
+      }
       vertexKeyType = parsed.vertex_key_type || 'json'
       vertexProjectId = parsed.vertex_project_id || ''
       vertexApiVersion =
@@ -656,6 +666,8 @@ export function transformChannelToFormDefaults(
     upstream_model_update_auto_sync_enabled: upstreamModelUpdateAutoSyncEnabled,
     upstream_model_update_ignored_models: upstreamModelUpdateIgnoredModels,
     advanced_custom: advancedCustom,
+    balance_notify_enabled: balanceNotifyEnabled,
+    balance_notify_threshold: balanceNotifyThreshold,
   }
 }
 
@@ -855,6 +867,8 @@ function buildSettingsJSON(formData: ChannelFormValues): string {
     delete settingsObj.advanced_custom
   }
 
+  settingsObj.balance_notify_enabled = formData.balance_notify_enabled === true
+  settingsObj.balance_notify_threshold = formData.balance_notify_threshold
   return JSON.stringify(settingsObj)
 }
 

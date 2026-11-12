@@ -77,6 +77,8 @@ notify.quota_low_gotify: "{{.Prompt}}，当前剩余额度为 {{.Quota}}，请�
 notify.quota_low_email: "{{.Prompt}}，当前剩余额度为 {{.Quota}}，为了不影响您的使用，请及时充值。<br/>充值链接：<a href='{{.Link}}'>{{.Link}}</a>"
 
 # Channel notices sent to administrators who receive them and to model update watchers
+channel.balance_low_subject: "渠道余额不足"
+channel.balance_low_content: "渠道「{{.Name}}」（#{{.Id}}）余额为 {{.Balance}} USD，低于 {{.Threshold}} USD 的提醒阈值。"
 channel.notify_disabled_subject: "通道「{{.Name}}」（#{{.Id}}）已被禁用"
 channel.notify_disabled_content: "通道「{{.Name}}」（#{{.Id}}）已被禁用，原因：{{.Reason}}"
 channel.notify_enabled_subject: "通道「{{.Name}}」（#{{.Id}}）已被启用"

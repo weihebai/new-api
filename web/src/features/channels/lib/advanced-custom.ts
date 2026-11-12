@@ -377,6 +377,7 @@ export function replaceAdvancedCustomManagementRoute(
       converter: 'none',
       models: [],
       auth: route.auth,
+      balance_response: route.balance_response,
     }
     if (index >= 0) routes[index] = managementRoute
     else routes.push(managementRoute)
@@ -640,6 +641,22 @@ export function validateAdvancedCustomConfig(
     const converter = route.converter || 'none'
     const routeModels = normalizeAdvancedCustomRouteModels(route.models)
 
+    if (route.balance_response) {
+      const response = route.balance_response
+      if (incomingPath !== ADVANCED_CUSTOM_BALANCE_PATH) {
+        return { routeIndex: index, message: 'Balance response settings require a balance route' }
+      }
+      if (response.balance_path.trim() === '') {
+        return { routeIndex: index, message: 'Balance field path is required' }
+      }
+      if (response.multiplier !== undefined && (!Number.isFinite(response.multiplier) || response.multiplier <= 0)) {
+        return { routeIndex: index, message: 'Balance multiplier must be positive and finite' }
+      }
+      if (response.success_path && response.success_value === undefined) {
+        return { routeIndex: index, message: 'Expected success value must be valid JSON' }
+      }
+    }
+
     if (!incomingPath) {
       return { routeIndex: index, message: 'Incoming path is required' }
     }
@@ -833,6 +850,9 @@ function normalizeAdvancedCustomRoute(
       name: route.auth.name || '',
       value: route.auth.value || '',
     }
+  }
+  if (route.balance_response) {
+    nextRoute.balance_response = { ...route.balance_response }
   }
   return nextRoute
 }

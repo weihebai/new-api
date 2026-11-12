@@ -1202,6 +1202,10 @@ test('quick options and detailed settings share changes across tabs and save the
 
   await user.click(screen.getByRole('tab', { name: /Routing & Mapping/ }))
   expect(screen.getByRole('switch', { name: 'Auto Ban' })).toBeChecked()
+  await user.click(screen.getByRole('switch', { name: 'Low channel balance notifications' }))
+  const balanceThreshold = screen.getByRole('spinbutton', { name: 'Low balance threshold (USD)' })
+  await user.clear(balanceThreshold)
+  await user.type(balanceThreshold, '5')
   await user.click(screen.getByRole('switch', { name: 'Auto Ban' }))
   await user.click(screen.getByRole('tab', { name: /Connection & Models/ }))
   expect(quick.getByRole('switch', { name: 'Pass Through Body' })).toBeChecked()
@@ -1222,6 +1226,7 @@ test('quick options and detailed settings share changes across tabs and save the
     settings: string
   }
   expect(payload.auto_ban).toBe(0)
+  expect(JSON.parse(payload.settings)).toMatchObject({ balance_notify_enabled: true, balance_notify_threshold: 5 })
   expect(JSON.parse(payload.setting)).toMatchObject({
     pass_through_body_enabled: true,
     responses_websocket_enabled: false,

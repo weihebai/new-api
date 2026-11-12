@@ -187,10 +187,11 @@ func TestUpdateChannelNewAPIBalanceUsesTheSmallerRemainingQuota(t *testing.T) {
 
 func TestFetchAdvancedCustomAssetBalance(t *testing.T) {
 	for _, tc := range []struct {
-		name       string
-		body       string
-		want       float64
-		recognized bool
+		name           string
+		body           string
+		want           float64
+		recognized     bool
+		responseConfig *dto.BalanceResponseConfig
 	}{
 		{name: "asset total in USD despite CNY display", body: `{"ok":true,"data":{"currencyDisplay":"CNY","assetReadModel":{"totalAvailableUsd":5.571683,"walletAvailableUsd":3,"subscriptionAvailableUsd":2.571683}}}`, want: 5.571683, recognized: true},
 		{name: "zero balance", body: `{"ok":true,"data":{"assetReadModel":{"totalAvailableUsd":0}}}`, recognized: true},
@@ -204,6 +205,7 @@ func TestFetchAdvancedCustomAssetBalance(t *testing.T) {
 		{name: "overflow total", body: `{"ok":true,"data":{"assetReadModel":{"totalAvailableUsd":1e999}}}`},
 		{name: "missing asset model", body: `{"ok":true,"data":{}}`},
 		{name: "unrecognized response", body: `{"balance":99}`},
+		{name: "configured provider response", body: `{"success":true,"credit":{"remaining":"8.25"}}`, want: 8.25, recognized: true, responseConfig: &dto.BalanceResponseConfig{BalancePath: "credit.remaining", SuccessPath: "success", SuccessValue: json.RawMessage(`true`)}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			setupSub2APIBalanceTest(t)
@@ -220,9 +222,10 @@ func TestFetchAdvancedCustomAssetBalance(t *testing.T) {
 			channel := &model.Channel{Type: constant.ChannelTypeAdvancedCustom, BaseURL: &baseURL, Key: "sk-test", Name: "asset-balance", Balance: 42}
 			channel.SetOtherSettings(dto.ChannelOtherSettings{AdvancedCustom: &dto.AdvancedCustomConfig{
 				Routes: []dto.AdvancedCustomRoute{{
-					IncomingPath: dto.AdvancedCustomBalancePath,
-					UpstreamPath: server.URL + "/api/me/commerce/get-user-asset-summary",
-					Converter:    "none",
+					IncomingPath:    dto.AdvancedCustomBalancePath,
+					UpstreamPath:    server.URL + "/api/me/commerce/get-user-asset-summary",
+					Converter:       "none",
+					BalanceResponse: tc.responseConfig,
 					Auth: &dto.AdvancedCustomRouteAuth{
 						Type: "header", Name: "Cookie", Value: "site-session=test-session",
 					},
