@@ -579,7 +579,10 @@ export function transformChannelToFormDefaults(
     try {
       const parsed = JSON.parse(channel.settings)
       balanceNotifyEnabled = parsed.balance_notify_enabled === true
-      if (typeof parsed.balance_notify_threshold === 'number' && parsed.balance_notify_threshold > 0) {
+      if (
+        typeof parsed.balance_notify_threshold === 'number' &&
+        parsed.balance_notify_threshold > 0
+      ) {
         balanceNotifyThreshold = parsed.balance_notify_threshold
       }
       vertexKeyType = parsed.vertex_key_type || 'json'

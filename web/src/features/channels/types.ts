@@ -95,8 +95,8 @@ export interface ChannelSettings {
 }
 
 export interface ChannelOtherSettings {
-	 balance_notify_enabled?: boolean
-	 balance_notify_threshold?: number
+  balance_notify_enabled?: boolean
+  balance_notify_threshold?: number
   azure_responses_version?: string
   vertex_key_type?: 'json' | 'api_key'
   vertex_project_id?: string
@@ -126,7 +126,7 @@ export interface AdvancedCustomConfig {
 }
 
 export interface AdvancedCustomRoute {
-	 balance_response?: BalanceResponseConfig
+  balance_response?: BalanceResponseConfig
   incoming_path?: string
   upstream_path?: string
   converter?: AdvancedCustomConverter

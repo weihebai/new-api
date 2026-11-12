@@ -2334,11 +2334,16 @@ export function ChannelMutateDrawer({
             <div className='space-y-0.5'>
               <FormLabel>{t('Low channel balance notifications')}</FormLabel>
               <FormDescription>
-                {t('Notify channel watchers when a successful balance query is below the threshold. Set CHANNEL_UPDATE_FREQUENCY in minutes for scheduled checks.')}
+                {t(
+                  'Notify channel watchers when a successful balance query is below the threshold. Set CHANNEL_UPDATE_FREQUENCY in minutes for scheduled checks.'
+                )}
               </FormDescription>
             </div>
             <FormControl>
-              <Switch checked={field.value === true} onCheckedChange={field.onChange} />
+              <Switch
+                checked={field.value === true}
+                onCheckedChange={field.onChange}
+              />
             </FormControl>
           </FormItem>
         )}
@@ -2351,7 +2356,15 @@ export function ChannelMutateDrawer({
             <FormItem>
               <FormLabel>{t('Low balance threshold (USD)')}</FormLabel>
               <FormControl>
-                <Input type='number' min='0' step='any' {...field} onChange={(event) => field.onChange(Number(event.target.value))} />
+                <Input
+                  type='number'
+                  min='0'
+                  step='any'
+                  {...field}
+                  onChange={(event) =>
+                    field.onChange(Number(event.target.value))
+                  }
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

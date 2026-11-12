@@ -48,7 +48,14 @@ const CONFIGURATION_BLOCKS = {
   modelMapping: { section: 'routing', fields: ['model_mapping'] },
   routingStrategy: {
     section: 'routing',
-    fields: ['priority', 'weight', 'test_model', 'auto_ban', 'balance_notify_enabled', 'balance_notify_threshold'],
+    fields: [
+      'priority',
+      'weight',
+      'test_model',
+      'auto_ban',
+      'balance_notify_enabled',
+      'balance_notify_threshold',
+    ],
   },
   overrideRules: {
     section: 'request',

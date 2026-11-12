@@ -36,13 +36,26 @@ test('balance response settings survive editing and reject invalid multipliers',
     incoming_path: '/v1/dashboard/billing/credit_grants',
     upstream_path: '/balance',
     converter: 'none' as const,
-    balance_response: { balance_path: 'data.balance', multiplier: 0.01, success_path: 'ok', success_value: true },
+    balance_response: {
+      balance_path: 'data.balance',
+      multiplier: 0.01,
+      success_path: 'ok',
+      success_value: true,
+    },
   }
-  const config = replaceAdvancedCustomManagementRoute({ advanced_routes: [route] }, route.incoming_path, route)
-  expect(normalizeAdvancedCustomConfig(config).advanced_routes?.[0]?.balance_response).toEqual(route.balance_response)
+  const config = replaceAdvancedCustomManagementRoute(
+    { advanced_routes: [route] },
+    route.incoming_path,
+    route
+  )
+  expect(
+    normalizeAdvancedCustomConfig(config).advanced_routes?.[0]?.balance_response
+  ).toEqual(route.balance_response)
   expect(validateAdvancedCustomConfig(config)).toBeNull()
   route.balance_response.multiplier = 0
-  expect(validateAdvancedCustomConfig({ advanced_routes: [route] })?.message).toBe('Balance multiplier must be positive and finite')
+  expect(
+    validateAdvancedCustomConfig({ advanced_routes: [route] })?.message
+  ).toBe('Balance multiplier must be positive and finite')
 })
 
 describe('advanced custom incoming path options', () => {
