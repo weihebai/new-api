@@ -1212,8 +1212,9 @@ function ManagementRouteEditor({
                       else if (
                         text.trim() !== '' &&
                         Number.isFinite(Number(text))
-                      )
+                      ) {
                         value = Number(text)
+                      }
                       onChange({
                         ...route,
                         balance_response: {
