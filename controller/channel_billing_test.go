@@ -9,6 +9,7 @@ import (
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/model"
+	"github.com/QuantumNous/new-api/relaykit/dto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -178,6 +179,67 @@ func TestUpdateChannelNewAPIBalanceUsesTheSmallerRemainingQuota(t *testing.T) {
 			require.NoError(t, err)
 			assert.InDelta(t, tc.want, result.Balance, 1e-9)
 			assert.InDelta(t, tc.want, channel.Balance, 1e-9)
+		})
+	}
+}
+
+func TestFetchAdvancedCustomAssetBalance(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		body       string
+		want       float64
+		recognized bool
+	}{
+		{name: "asset total in USD despite CNY display", body: `{"ok":true,"data":{"currencyDisplay":"CNY","assetReadModel":{"totalAvailableUsd":5.571683,"walletAvailableUsd":3,"subscriptionAvailableUsd":2.571683}}}`, want: 5.571683, recognized: true},
+		{name: "zero balance", body: `{"ok":true,"data":{"assetReadModel":{"totalAvailableUsd":0}}}`, recognized: true},
+		{name: "existing credit summary", body: `{"object":"credit_summary","total_available":12.5}`, want: 12.5, recognized: true},
+		{name: "unsuccessful response", body: `{"ok":false,"data":{"assetReadModel":{"totalAvailableUsd":5}}}`},
+		{name: "missing success flag", body: `{"data":{"assetReadModel":{"totalAvailableUsd":5}}}`},
+		{name: "missing total does not use wallet", body: `{"ok":true,"data":{"assetReadModel":{"walletAvailableUsd":5}}}`},
+		{name: "null total", body: `{"ok":true,"data":{"assetReadModel":{"totalAvailableUsd":null}}}`},
+		{name: "string total", body: `{"ok":true,"data":{"assetReadModel":{"totalAvailableUsd":"5"}}}`},
+		{name: "negative total", body: `{"ok":true,"data":{"assetReadModel":{"totalAvailableUsd":-1}}}`},
+		{name: "overflow total", body: `{"ok":true,"data":{"assetReadModel":{"totalAvailableUsd":1e999}}}`},
+		{name: "missing asset model", body: `{"ok":true,"data":{}}`},
+		{name: "unrecognized response", body: `{"balance":99}`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			setupSub2APIBalanceTest(t)
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, http.MethodGet, r.Method)
+				assert.Equal(t, "/api/me/commerce/get-user-asset-summary", r.URL.Path)
+				assert.Equal(t, "site-session=test-session", r.Header.Get("Cookie"))
+				assert.Empty(t, r.Header.Get("Authorization"))
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(tc.body))
+			}))
+			defer server.Close()
+			baseURL := server.URL
+			channel := &model.Channel{Type: constant.ChannelTypeAdvancedCustom, BaseURL: &baseURL, Key: "sk-test", Name: "asset-balance", Balance: 42}
+			channel.SetOtherSettings(dto.ChannelOtherSettings{AdvancedCustom: &dto.AdvancedCustomConfig{
+				Routes: []dto.AdvancedCustomRoute{{
+					IncomingPath: dto.AdvancedCustomBalancePath,
+					UpstreamPath: server.URL + "/api/me/commerce/get-user-asset-summary",
+					Converter:    "none",
+					Auth: &dto.AdvancedCustomRouteAuth{
+						Type: "header", Name: "Cookie", Value: "site-session=test-session",
+					},
+				}},
+			}})
+			require.NoError(t, model.DB.Create(channel).Error)
+
+			result, err := updateChannelBalance(channel)
+			require.NoError(t, err)
+			var saved model.Channel
+			require.NoError(t, model.DB.First(&saved, channel.Id).Error)
+			if tc.recognized {
+				assert.Empty(t, result.RawResponse)
+				assert.InDelta(t, tc.want, result.Balance, 1e-9)
+				assert.InDelta(t, tc.want, saved.Balance, 1e-9)
+			} else {
+				assert.JSONEq(t, tc.body, result.RawResponse)
+				assert.Equal(t, float64(42), saved.Balance)
+			}
 		})
 	}
 }
