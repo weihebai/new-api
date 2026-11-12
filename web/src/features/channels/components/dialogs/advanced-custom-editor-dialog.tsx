@@ -901,7 +901,7 @@ export function AdvancedCustomEditorDialog({
           <ManagementRouteEditor
             route={modelListRoute}
             path={ADVANCED_CUSTOM_MODEL_LIST_PATH}
-            title={ADVANCED_CUSTOM_MODEL_LIST_LABEL}
+            title={t(ADVANCED_CUSTOM_MODEL_LIST_LABEL)}
             description={t(
               'This route is used only by channel management to discover upstream models.'
             )}
@@ -921,7 +921,7 @@ export function AdvancedCustomEditorDialog({
           <ManagementRouteEditor
             route={balanceRoute}
             path={ADVANCED_CUSTOM_BALANCE_PATH}
-            title={ADVANCED_CUSTOM_BALANCE_LABEL}
+            title={t(ADVANCED_CUSTOM_BALANCE_LABEL)}
             description={t(
               'This route is used only by channel management to query the upstream balance.'
             )}
