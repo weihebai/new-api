@@ -612,6 +612,22 @@ func fetchAdvancedCustomBalance(channel *model.Channel) (channelBalanceResult, e
 				return channelBalanceResult{Balance: balance}, nil
 			}
 		}
+		var assetSummary struct {
+			OK   bool `json:"ok"`
+			Data struct {
+				AssetReadModel struct {
+					TotalAvailableUSD *float64 `json:"totalAvailableUsd"`
+				} `json:"assetReadModel"`
+			} `json:"data"`
+		}
+		if err := common.Unmarshal(body, &assetSummary); err == nil &&
+			assetSummary.OK && assetSummary.Data.AssetReadModel.TotalAvailableUSD != nil {
+			balance := *assetSummary.Data.AssetReadModel.TotalAvailableUSD
+			if balance >= 0 && !math.IsNaN(balance) && !math.IsInf(balance, 0) {
+				channel.UpdateBalance(balance)
+				return channelBalanceResult{Balance: balance}, nil
+			}
+		}
 	}
 
 	formatted, err := common.IndentJson(body)

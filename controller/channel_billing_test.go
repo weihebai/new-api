@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -237,7 +239,9 @@ func TestFetchAdvancedCustomAssetBalance(t *testing.T) {
 				assert.InDelta(t, tc.want, result.Balance, 1e-9)
 				assert.InDelta(t, tc.want, saved.Balance, 1e-9)
 			} else {
-				assert.JSONEq(t, tc.body, result.RawResponse)
+				var compact bytes.Buffer
+				require.NoError(t, json.Compact(&compact, []byte(result.RawResponse)))
+				assert.Equal(t, tc.body, compact.String())
 				assert.Equal(t, float64(42), saved.Balance)
 			}
 		})
