@@ -7428,5 +7428,6 @@
   "Low balance threshold must be positive and finite": "Low balance threshold must be positive and finite",
   "Balance response success condition did not match": "Balance response success condition did not match",
   "Balance field is missing or is not numeric": "Balance field is missing or is not numeric",
-  "Balance must be non-negative and finite": "Balance must be non-negative and finite"
+  "Balance must be non-negative and finite": "Balance must be non-negative and finite",
+  "Open channel website": "Открыть сайт канала"
 }

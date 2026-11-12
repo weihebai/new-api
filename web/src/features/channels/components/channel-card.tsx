@@ -17,11 +17,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { flexRender, type Row } from '@tanstack/react-table'
+import { ExternalLink } from 'lucide-react'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { GroupBadge } from '@/components/group-badge'
 import { StatusBadgeTypeContext } from '@/components/status-badge'
+import { Button } from '@/components/ui/button'
 
 import { CHANNEL_STATUS } from '../constants'
 import { isTagAggregateRow, parseGroupsList } from '../lib'
@@ -99,6 +101,26 @@ function ChannelCardComponent({
               <span className='shrink-0'>{selectCell}</span>
             )}
             <div className='min-w-0 overflow-hidden'>{typeCell}</div>
+            {!isTagRow &&
+              typeof row.original.base_url === 'string' &&
+              /^https?:\/\//i.test(row.original.base_url) && (
+                <Button
+                  variant='ghost'
+                  size='icon-xs'
+                  nativeButton={false}
+                  render={
+                    <a
+                      href={row.original.base_url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      aria-label={t('Open channel website')}
+                      title={t('Open channel website')}
+                    />
+                  }
+                >
+                  <ExternalLink aria-hidden='true' />
+                </Button>
+              )}
           </div>
           <div className='flex shrink-0 items-center gap-1.5'>
             {showStatusBadge && statusCell}

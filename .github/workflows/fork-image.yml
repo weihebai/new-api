@@ -55,6 +55,7 @@ jobs:
         run: >-
           bunx oxlint -c .oxlintrc.json
           src/features/channels/types.ts
+          src/features/channels/components/channel-card.tsx
           src/features/channels/lib/advanced-custom.ts
           src/features/channels/lib/channel-form.ts
           src/features/channels/lib/channel-form-errors.ts

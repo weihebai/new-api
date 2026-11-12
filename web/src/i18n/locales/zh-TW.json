@@ -7428,5 +7428,6 @@
   "Low balance threshold must be positive and finite": "低余额提醒阈值必须是有效正数",
   "Balance response success condition did not match": "余额响应不满足配置的成功条件",
   "Balance field is missing or is not numeric": "余额字段缺失或不是有效数字",
-  "Balance must be non-negative and finite": "余额必须是有效非负数"
+  "Balance must be non-negative and finite": "余额必须是有效非负数",
+  "Open channel website": "開啟渠道網址"
 }
