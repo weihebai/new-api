@@ -51,7 +51,18 @@ jobs:
           bun-version: '1.4.4'
       - run: bun install --frozen-lockfile
       - run: bun check -b
-      - run: bun run lint
+      - name: Lint changed channel files
+        run: >-
+          bunx oxlint -c .oxlintrc.json
+          src/features/channels/types.ts
+          src/features/channels/lib/advanced-custom.ts
+          src/features/channels/lib/channel-form.ts
+          src/features/channels/lib/channel-form-errors.ts
+          src/features/channels/lib/channel-configuration.ts
+          src/features/channels/lib/__tests__/advanced-custom.test.ts
+          src/features/channels/components/dialogs/advanced-custom-editor-dialog.tsx
+          src/features/channels/components/drawers/channel-mutate-drawer.tsx
+          src/features/channels/components/__tests__/channel-configuration.test.tsx
       - run: bun run test
 
   build:

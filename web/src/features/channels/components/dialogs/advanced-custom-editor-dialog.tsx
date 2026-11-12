@@ -1013,6 +1013,8 @@ function ManagementRouteEditor({
     )
   }
 
+  const balanceResponse = route.balance_response
+
   const updateAuth = (
     field: Exclude<keyof NonNullable<AdvancedCustomRoute['auth']>, 'type'>,
     value: string
@@ -1136,7 +1138,7 @@ function ManagementRouteEditor({
                   aria-label={t('Balance field path')}
                   value={route.balance_response.balance_path}
                   placeholder='data.assetReadModel.totalAvailableUsd'
-                  onChange={(event) => onChange({ ...route, balance_response: { ...route.balance_response!, balance_path: event.target.value } })}
+                  onChange={(event) => onChange({ ...route, balance_response: { balance_path: '', ...balanceResponse, balance_path: event.target.value } })}
                 />
               </FieldBlock>
               <FieldBlock label={t('Balance multiplier (to USD)')}>
@@ -1144,7 +1146,7 @@ function ManagementRouteEditor({
                   aria-label={t('Balance multiplier (to USD)')}
                   type='number' step='any' min='0'
                   value={route.balance_response.multiplier ?? 1}
-                  onChange={(event) => onChange({ ...route, balance_response: { ...route.balance_response!, multiplier: Number(event.target.value) } })}
+                  onChange={(event) => onChange({ ...route, balance_response: { balance_path: '', ...balanceResponse, multiplier: Number(event.target.value) } })}
                 />
               </FieldBlock>
               <FieldBlock label={t('Success field path (optional)')}>
@@ -1153,7 +1155,7 @@ function ManagementRouteEditor({
                   value={route.balance_response.success_path ?? ''}
                   placeholder='ok'
                   onChange={(event) => onChange({ ...route, balance_response: {
-                    ...route.balance_response!,
+                    balance_path: '', ...balanceResponse,
                     success_path: event.target.value,
                     success_value: event.target.value === '' ? undefined : true,
                   } })}
@@ -1174,7 +1176,7 @@ function ManagementRouteEditor({
                       else if (text === 'false') value = false
                       else if (text === 'null') value = null
                       else if (text.trim() !== '' && Number.isFinite(Number(text))) value = Number(text)
-                      onChange({ ...route, balance_response: { ...route.balance_response!, success_value: value } })
+                      onChange({ ...route, balance_response: { balance_path: '', ...balanceResponse, success_value: value } })
                     }}
                   />
                 </FieldBlock>

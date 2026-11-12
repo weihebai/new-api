@@ -646,7 +646,7 @@ export function validateAdvancedCustomConfig(
       if (incomingPath !== ADVANCED_CUSTOM_BALANCE_PATH) {
         return { routeIndex: index, message: 'Balance response settings require a balance route' }
       }
-      if (response.balance_path.trim() === '') {
+      if (typeof response.balance_path !== 'string' || response.balance_path.trim() === '') {
         return { routeIndex: index, message: 'Balance field path is required' }
       }
       if (response.multiplier !== undefined && (!Number.isFinite(response.multiplier) || response.multiplier <= 0)) {
