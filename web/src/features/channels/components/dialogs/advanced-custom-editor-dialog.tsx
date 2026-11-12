@@ -1138,7 +1138,7 @@ function ManagementRouteEditor({
                   aria-label={t('Balance field path')}
                   value={route.balance_response.balance_path}
                   placeholder='data.assetReadModel.totalAvailableUsd'
-                  onChange={(event) => onChange({ ...route, balance_response: { balance_path: '', ...balanceResponse, balance_path: event.target.value } })}
+                  onChange={(event) => onChange({ ...route, balance_response: { ...balanceResponse, balance_path: event.target.value } })}
                 />
               </FieldBlock>
               <FieldBlock label={t('Balance multiplier (to USD)')}>

@@ -42,7 +42,7 @@ func NotifyLowChannelBalance(channel *model.Channel, balance float64) {
 	channelBalanceNotices.Unlock()
 	NotifyChannelWatchers(fmt.Sprintf("channel_balance_low_%d", channel.Id), func(lang string) (string, string) {
 		params := map[string]any{"Name": html.EscapeString(channel.Name), "Id": channel.Id, "Balance": balance, "Threshold": settings.BalanceNotifyThreshold}
-		return i18n.Translate(lang, "channel.balance_low_subject"), i18n.Translate(lang, "channel.balance_low_content", params)
+		return i18n.Translate(lang, i18n.MsgChannelBalanceLowSubject), i18n.Translate(lang, i18n.MsgChannelBalanceLowContent, params)
 	})
 }
 

@@ -99,6 +99,8 @@ const (
 // watchers
 const (
 	MsgChannelNotifyDisabledSubject = "channel.notify_disabled_subject"
+	MsgChannelBalanceLowSubject     = "channel.balance_low_subject"
+	MsgChannelBalanceLowContent     = "channel.balance_low_content"
 	MsgChannelNotifyDisabledContent = "channel.notify_disabled_content"
 	MsgChannelNotifyEnabledSubject  = "channel.notify_enabled_subject"
 	MsgChannelNotifyEnabledContent  = "channel.notify_enabled_content"
